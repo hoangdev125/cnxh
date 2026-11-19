@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ôn Tập Trắc Nghiệm CNXHKH</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" id="brandHome" role="button" tabindex="0">
+        <span class="brand-badge">ML018</span>
+        <div>
+          <div class="brand-title">Trắc Nghiệm CNXHKH</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Chế độ học">
+        <button class="nav-tab active" data-view="quiz">Trắc nghiệm</button>
+        <button class="nav-tab" data-view="bank">Ngân hàng câu hỏi</button>
+      </nav>
+
+      <button class="icon-btn" id="themeToggle" title="Chuyển chế độ Sáng / Tối" aria-label="Chuyển chế độ Sáng / Tối">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ==================== VIEW 1: QUIZ ==================== -->
+    <section id="view-quiz" class="view active">
+      <!-- Setup Screen -->
+      <div id="quiz-setup">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Tổng câu hỏi</div>
+            <div class="stat-value" id="stat-total">156</div>
+          </div>
+          <div class="stat-card stat-danger">
+            <div class="stat-label">Câu làm sai</div>
+            <div class="stat-value" id="stat-wrong">0</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-label">Đã đánh dấu</div>
+            <div class="stat-value" id="stat-bookmarked">0</div>
+          </div>
+        </div>
+
+        <div class="setup-grid">
+          <div class="card">
+            <h2 class="card-title">1. Chọn phạm vi ôn tập</h2>
+            <div class="chapter-list" id="chapterList"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title">2. Thiết lập bài làm</h2>
+
+            <div class="form-group">
+              <label class="form-label">Số lượng câu hỏi</label>
+              <div class="pill-group" id="countPills">
+                <button type="button" class="pill" data-count="10">10 câu</button>
+                <button type="button" class="pill active" data-count="20">20 câu</button>
+                <button type="button" class="pill" data-count="40">40 câu</button>
+                <button type="button" class="pill" data-count="all">Tất cả</button>
+              </div>
+            </div>
+
+            <div class="form-group switches">
+              <label class="switch-row">
+                <input type="checkbox" id="optShuffleQ" checked />
+                <span>Trộn thứ tự câu hỏi</span>
+              </label>
+              <label class="switch-row">
+                <input type="checkbox" id="optShuffleA" checked />
+                <span>Trộn thứ tự đáp án A / B / C / D</span>
+              </label>
+            </div>
+
+            <div class="setup-actions">
+              <button type="button" class="btn btn-primary btn-lg" id="btnStartQuiz">
+                Bắt đầu làm bài
+              </button>
+            </div>
+
+            <div class="reset-row">
+              <button type="button" class="link-btn" id="btnResetStats">
+                Đặt lại lịch sử câu sai & đánh dấu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Quiz Screen -->
+      <div id="quiz-active" class="hidden">
+        <div class="quiz-header card">
+          <div class="quiz-meta">
+            <button type="button" class="btn btn-ghost btn-sm" id="btnExitQuiz">← Thoát</button>
+            <span class="quiz-counter" id="quizCounter">Câu 1 / 20</span>
+          </div>
+          <div class="quiz-right">
+            <button type="button" class="btn btn-primary btn-sm" id="btnSubmitQuiz">Nộp bài</button>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="quizProgressFill"></div>
+        </div>
+
+        <div class="quiz-layout">
+          <div class="card question-card">
+            <div class="q-top">
+              <span class="chapter-tag" id="qChapterTag">Chương 1</span>
+              <button type="button" class="bookmark-btn" id="btnBookmarkQ" title="Đánh dấu câu này (Phím B)">
+                ☆ Đánh dấu
+              </button>
+            </div>
+            <h3 class="q-text" id="qText"></h3>
+            <div class="options-list" id="optionsList"></div>
+
+            <div class="q-feedback hidden" id="qFeedback"></div>
+
+            <div class="q-nav">
+              <button type="button" class="btn btn-outline" id="btnPrevQ">← Câu trước</button>
+              <div class="kbd-hint">Phím tắt: A-D / 1-4 chọn • ← → chuyển câu</div>
+              <button type="button" class="btn btn-primary" id="btnNextQ">Câu tiếp →</button>
+            </div>
+          </div>
+
+          <aside class="card navigator-card">
+            <div class="nav-head">
+              <strong>Danh sách câu</strong>
+              <span class="muted" id="answeredCount">0/20 đã chọn</span>
+            </div>
+            <div class="nav-grid" id="navGrid"></div>
+            <div class="nav-legend">
+              <span><i class="dot dot-current"></i>Đang xem</span>
+              <span><i class="dot dot-correct"></i>Đúng</span>
+              <span><i class="dot dot-wrong"></i>Sai</span>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Result Screen -->
+      <div id="quiz-result" class="hidden">
+        <div class="card result-hero">
+          <div class="score-ring">
+            <div class="score-big" id="resScore10">0.0</div>
+            <div class="score-sub">thang điểm 10</div>
+          </div>
+          <div class="result-info">
+            <h2 id="resTitle">Hoàn thành bài làm!</h2>
+            <p class="muted" id="resSubtitle"></p>
+            <div class="result-badges">
+              <span class="badge badge-success" id="resCorrect">Đúng: 0</span>
+              <span class="badge badge-danger" id="resWrong">Sai: 0</span>
+              <span class="badge badge-neutral" id="resSkipped">Chưa làm: 0</span>
+              <span class="badge badge-neutral" id="resTime">Thời gian: 00:00</span>
+            </div>
+            <div class="result-actions">
+              <button type="button" class="btn btn-primary" id="btnRetryWrong">Làm lại các câu sai</button>
+              <button type="button" class="btn btn-outline" id="btnRetrySame">Làm bài mới</button>
+              <button type="button" class="btn btn-ghost" id="btnBackHome">Về trang chọn</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="review-header">
+            <h3 class="card-title" style="margin:0;">Chi tiết đáp án</h3>
+            <div class="pill-group" id="reviewFilters">
+              <button type="button" class="pill active" data-rfilter="all">Tất cả</button>
+              <button type="button" class="pill" data-rfilter="wrong">Chỉ câu sai</button>
+              <button type="button" class="pill" data-rfilter="correct">Chỉ câu đúng</button>
+            </div>
+          </div>
+          <div class="review-list" id="reviewList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 2: QUESTION BANK ==================== -->
+    <section id="view-bank" class="view">
+      <div class="card bank-toolbar">
+        <input type="search" id="bankSearch" class="search-input"
+          placeholder="Tìm kiếm câu hỏi hoặc đáp án (vd: Lênin, 1848, 8 đặc trưng, tôn giáo...)" />
+        <select id="bankChapterSelect" class="select">
+          <option value="all">Tất cả 7 chương</option>
+        </select>
+        <label class="switch-row" style="margin:0;">
+          <input type="checkbox" id="bankShowAnswers" checked />
+          <span>Hiện đáp án</span>
+        </label>
+      </div>
+      <div class="muted bank-count" id="bankCount"></div>
+      <div class="bank-list" id="bankList"></div>
+    </section>
+  </main>
+
+  <script src="data/ch1_2.js"></script>
+  <script src="data/ch3_4.js"></script>
+  <script src="data/ch5_7.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
